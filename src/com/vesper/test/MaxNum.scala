@@ -7,11 +7,10 @@ object MaxNum {
     val conf = new SparkConf().setAppName("MaxNum").setMaster("spark://192.168.19.139:7077")
       .setJars(Seq("C:\\Users\\vespe\\IdeaProjects\\sparkstudytest\\out\\artifacts\\sparkstudytest_jar\\sparkstudytest.jar"))
     val sc = new SparkContext(conf)
-    val lines = sc.textFile("hdfs://192.168.19.139:9000//data//MaxOrMin.log")
-    val num = lines.map(_.toInt)
-    val max = num.reduce((a, b) => if (a > b) a else b)
-    val min = num.reduce((a, b) => if (a < b) a else b)
-    println(s"max = $max , min = $min")
+    val lines = sc.textFile("hdfs://192.168.19.139:9000//data//MaxOrMin.log").map(x => (x.toInt, Integer.MAX_VALUE))
+      .reduce((x, y) => if (x._1 > y._1 && x._2 > y._1) (x._1, y._1) else if (x._1 < y._1 && x._1 > x._2) (y._1, x._2)
+      else if (x._1 < y._1 && x._1 < x._2) (y._1, x._1) else (x._1, x._2))
+    println(lines)
     sc.stop()
   }
 
